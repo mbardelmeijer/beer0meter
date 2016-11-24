@@ -19,7 +19,11 @@ $app->get('/', function () use ($app) {
     return view('tally', ['stats' => app(Tally::class)->stats()]);
 });
 
-$app->get('/api/v1/tally', function () use ($app) {
+$app->get('/api/v1/stats', function () use ($app) {
+    return app(Tally::class)->stats();
+});
+
+$app->post('/api/v1/tally', function () use ($app) {
     $username = app('request')->get('username');
     if (empty($username)) {
         return ['error' => 'Username is required.'];
@@ -32,6 +36,3 @@ $app->get('/api/v1/tally', function () use ($app) {
     return ['total' => app(Tally::class)->countByUsername($username)];
 });
 
-$app->get('/api/v1/stats', function () use ($app) {
-    return app(Tally::class)->stats();
-});
