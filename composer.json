@@ -1,0 +1,29 @@
+{
+    "name": "codesta/beer0meter",
+    "description": "Beer tally.",
+    "keywords": ["beer", "meter", "beer0meter", "codesta"],
+    "license": "MIT",
+    "type": "project",
+    "require": {
+        "php": ">=7.0",
+        "laravel/lumen-framework": "5.3.*",
+        "vlucas/phpdotenv": "~2.2"
+    },
+    "require-dev": {
+        "fzaninotto/faker": "~1.4",
+        "phpunit/phpunit": "~5.0",
+        "mockery/mockery": "~0.9"
+    },
+    "autoload": {
+        "psr-4": {
+            "Codesta\\Beer0Meter\\": "app/"
+        }
+    },
+    "scripts": {
+        "post-root-package-install": [
+            "php -r \"copy('.env.example', '.env');\""
+        ]
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
