@@ -16,11 +16,15 @@ use Codesta\Beer0Meter\Tally;
 app()->singleton(Tally::class);
 
 $app->get('/', function () use ($app) {
-    return view('tally', ['stats' => app(Tally::class)->stats()]);
+    $totals = app(Tally::class)->totals();
+    $usernames = app(Tally::class)->usernames();
+    $tally = app(Tally::class)->tally();
+
+    return view('tally', compact('totals', 'usernames', 'tally'));
 });
 
-$app->get('/api/v1/stats', function () use ($app) {
-    return app(Tally::class)->stats();
+$app->get('/api/v1/totals', function () use ($app) {
+    return app(Tally::class)->totals();
 });
 
 $app->post('/api/v1/tally', function () use ($app) {

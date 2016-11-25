@@ -6,9 +6,11 @@ use Illuminate\Support\Collection;
 
 final class Tally
 {
+    private $tally;
+
     public function __construct()
     {
-        $this->contents = $this->getFileContents();
+        $this->tally = $this->getTally();
     }
 
     public function add(string $username, int $count)
@@ -17,13 +19,22 @@ final class Tally
             throw new \InvalidArgumentException("Count should be a negative or positive integer");
         }
 
-        $this->contents->push(['username' => $username, 'created_at' => date(DATE_RFC3339), 'count' => $count]);
+        // If less then the total amount, set the count to zero
+        if ($count < 0) {
+            $countByUsername = $this->countByUsername($username);
+
+            if (abs($count) > $countByUsername) {
+                $count = $countByUsername * -1;
+            }
+        }
+
+        $this->tally->push(['username' => $username, 'created_at' => date(DATE_RFC3339), 'count' => $count]);
         $this->save();
     }
 
     public function countByUsername(string $username): int
     {
-        return $this->contents
+        return $this->tally
             ->groupBy('username')
             ->get($username)
             ->sum(function (array $item) {
@@ -31,21 +42,33 @@ final class Tally
             });
     }
 
-    public function stats(): Collection
+    public function totals(): Collection
     {
-        return $this->contents
+        return $this->tally
             ->groupBy('username')
             ->map(function (Collection $items, string $username) {
                 return $this->countByUsername($username);
             });
     }
 
-    private function save()
+    public function usernames(): Collection
     {
-        file_put_contents($this->getFile(), json_encode($this->contents->toArray(), JSON_NUMERIC_CHECK));
+        return $this->tally
+            ->groupBy('username')
+            ->keys();
     }
 
-    private function getFileContents(): Collection
+    public function tally(): Collection
+    {
+        return $this->tally;
+    }
+
+    private function save()
+    {
+        file_put_contents($this->getFile(), json_encode($this->tally->toArray(), JSON_NUMERIC_CHECK));
+    }
+
+    private function getTally(): Collection
     {
         return collect(json_decode(file_get_contents($this->getFile()), true));
     }
